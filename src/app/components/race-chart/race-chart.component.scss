@@ -1,0 +1,9 @@
+svg rect {
+  //transition: width .1s linear;
+}
+svg text {
+  transition: x .1s linear;
+}
+svg g.piece {
+  transition: all .2s ease;
+}

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 600 ' + svgHeight">
+  <g id="legends" font-size="8" dominant-baseline="central" font-family="sans-serif">
+    <g class="legend" *ngFor="let cat of categories|keys; let i = index">
+      <rect width="5" height="5" [attr.x]="rectStart() + i * legendSpace" [attr.y]="legendTopPadding"
+            [attr.fill]="categories[cat]"/>
+      <text [attr.x]="rectStart() + i * legendSpace + legendRectWidth + 2"
+            [attr.y]="legendTopPadding +legendRectWidth/2">{{cat}}</text>
+    </g>
+  </g>
+  <g id="data">
+    <g class="piece" *ngFor="let piece of data; let i = index"
+       [attr.transform]="'translate(0,'+(10 + y(piece.order))+')'" dominant-baseline="central" font-family="sans-serif"
+       font-size="10">
+      <text [attr.x]="labelWidth" [attr.y]="10" text-anchor="end">{{piece.label}}</text>
+      <rect opacity="0.7" [attr.x]="rectStart()" [attr.y]="0" [attr.width]="rectWidth(piece.count)"
+            [attr.height]="pieceHeight" [attr.fill]="categories[piece.category]"/>
+      <text text-anchor="start" [attr.x]="rectStart() + rectWidth(piece.count) + 8"
+            [attr.y]="10">{{(piece.count | int) | numeric}}</text>
+      <g>
+        <clipPath [attr.id]="'thumb-clip-'+i">
+          <circle [attr.cx]="rectStart() + rectWidth(piece.count) - thumbRadius() - thumbSpace"
+                  [attr.cy]="thumbRadius() + thumbSpace" [attr.r]="thumbRadius()"></circle>
+        </clipPath>
+        <image [attr.x]="rectStart() + rectWidth(piece.count) - thumbHeight() - thumbSpace" [attr.y]="thumbSpace"
+               [attr.clip-path]="'url(#thumb-clip-'+i+')'" [attr.width]="thumbHeight()" [attr.height]="thumbHeight()"
+               [attr.xlink:href]="piece.thumbUrl"/>
+      </g>
+    </g>
+  </g>
+  <g id="timeline" [attr.transform]="'translate(0, '+(30 + y(data.length))+')'">
+    <g id="play" (click)="isAnimated = !isAnimated; isAnimated && animate()">
+      <circle fill="transparent" stroke-width="1" stroke="#414141"
+              [attr.cx]="rectStart() - thumbRadius() - thumbSpace - 12.5" [attr.cy]="thumbRadius() + thumbSpace"
+              [attr.r]="thumbRadius()"></circle>
+      <polygon *ngIf="!isAnimated" fill="#414141" points="40,5.5 47,10 40,14.5 40,5.5"/>
+      <g *ngIf="isAnimated">
+        <rect x="39" y="6" width="2" height="8" fill="#414141"/>
+        <rect x="44" y="6" width="2" height="8" fill="#414141"/>
+      </g>
+    </g>
+    <line stroke-width="1" stroke="#d1d1d1" [attr.x1]="rectStart()" [attr.y1]="thumbRadius() + thumbSpace"
+          [attr.x2]="svgWidth - rectRightMargin" [attr.y2]="thumbRadius() + thumbSpace"/>
+    <polygon fill="#c1c1c1" [attr.points]="
+    linePos() +','+(thumbSpace + thumbRadius()) + ' ' +
+    (linePos() - 4)+ ',' + (thumbSpace + thumbRadius() - 5) + ' ' +
+    (linePos() + 4)+ ',' + (thumbSpace + thumbRadius() - 5) + ' ' +
+    (linePos())+ ',' + (thumbSpace + thumbRadius())"/>
+    <g class="x-label" *ngFor="let i of data[0].data.length|forin"
+       font-size="6" dominant-baseline="hanging" text-anchor="middle" font-family="sans-serif">
+      <line stroke-width="1" stroke="#d1d1d1" [attr.x1]="xLabelPos(i)"
+            [attr.x2]="xLabelPos(i)" [attr.y1]="thumbSpace + thumbRadius()" [attr.y2]="thumbSpace + thumbRadius() + 3"/>
+      <text fill="gray" [attr.x]="xLabelPos(i)"
+            [attr.y]="thumbSpace + thumbRadius() + 4">{{fromYear + i * yearInterval}}</text>
+    </g>
+  </g>
+  <g id="totals"font-family="sans-serif">
+    <text fill="#c1c1c1" [attr.x]="svgWidth - rectRightMargin"
+          [attr.y]="10 + y(data.length - 1)" font-size="24"
+          dominant-baseline="hanging" text-anchor="end"
+    >{{((fromYear + currentIndex * yearInterval + position * yearInterval)|int)}}</text>
+    <text fill="#c1c1c1" [attr.x]="svgWidth - rectRightMargin"
+          [attr.y]="10 + y(data.length - 1) + 24" font-size="12"
+          dominant-baseline="hanging" text-anchor="end"
+    >Total: {{(total()|int)|numeric}}</text>
+  </g>
+
+</svg>
